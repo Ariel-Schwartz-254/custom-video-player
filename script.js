@@ -1,43 +1,47 @@
-const player = document.querySelector('.player');
-const video = document.querySelector('video');
-const progressRange = document.querySelector('.progress-range');
-const progressBar = document.querySelector('.progress-bar');
-const playBtn = document.getElementById('play-btn');
-const volumeIcon = document.getElementById('volume-icon');
-const volumeRange = document.querySelector('.volume-range');
-const volumeBar = document.querySelector('.volume-bar');
-const currentTime = document.querySelector('.time-elapsed');
-const duration = document.querySelector('.time-duration');
-const speed = document.querySelector('.player-speed');
-const fullscreenBtn = document.querySelector('.fullscreen');
+const htmlElements = {
+    player : document.querySelector('.player'),
+    video : document.querySelector('video'),
+    progressRange : document.querySelector('.progress-range'),
+    progressBar : document.querySelector('.progress-bar'),
+    playBtn : document.getElementById('play-btn'),
+    volumeIcon : document.getElementById('volume-icon'),
+    volumeRange : document.querySelector('.volume-range'),
+    volumeBar : document.querySelector('.volume-bar'),
+    currentTime : document.querySelector('.time-elapsed'),
+    duration : document.querySelector('.time-duration'),
+    speed : document.querySelector('.player-speed'),
+    fullscreenBtn : document.querySelector('.fullscreen'),
+};
 
 // Play & Pause ----------------------------------- //
 function showPlayIcon() {
+    const { playBtn } = htmlElements;
     playBtn.classList.replace('fa-pause', 'fa-play');
     playBtn.setAttribute('title', 'Play');  
 }
 
 function showPauseIcon() {
+    const { playBtn } = htmlElements;
     playBtn.classList.replace('fa-play', 'fa-pause');
     playBtn.setAttribute('title', 'Pause');
 }
 
 function playVideo() {
-    video.play();
+    htmlElements.video.play();
     showPauseIcon();
 }
 
 function pauseVideo() {
-    video.pause();
+    htmlElements.video.pause();
     showPlayIcon();
 }
 
 function togglePlay() {
-    video.paused ? playVideo() : pauseVideo();
+    htmlElements.video.paused ? playVideo() : pauseVideo();
 }
 
 // On Video End, show play button icon
-video.addEventListener('ended', showPlayIcon);
+htmlElements.video.addEventListener('ended', showPlayIcon);
 
 // Progress Bar ---------------------------------- //
 function calculateMinutes(totalTime) {
@@ -53,28 +57,29 @@ function calculateSeconds(totalTime) {
 }
 
 function updateCurrentTime() {
+    const { video, currentTime } = htmlElements;
     const minutes = Math.floor(video.currentTime / 60);
     const seconds = calculateSeconds(video.currentTime);
-    // console.log('min:', minutes, 'Seconds:', seconds);
     currentTime.textContent = `${minutes}:${seconds} /`;
 }
 
 function updateProgress() {
+    const { video, progressBar } = htmlElements;
     progressBar.style.width = `${(video.currentTime / video.duration) * 100}%`;
     updateCurrentTime()
 }
 
 function updateDuration() {
+    const { video, duration } = htmlElements;
     const minutes = Math.floor(video.duration / 60);
     const seconds = calculateSeconds(video.duration);
-    // console.log('min:', minutes, 'Seconds:', seconds);
     duration.textContent = ` ${minutes}:${seconds}`;
 }
 
 // Click to seek within the video
 function setProgress(e) {
+    const { progressRange, video } = htmlElements;
     const newTime = e.offsetX / progressRange.offsetWidth;
-    // console.log(newTime * video.duration);
     video.currentTime = newTime * video.duration;
     updateProgress();
 }
@@ -83,19 +88,22 @@ function setProgress(e) {
 let lastVolume = 1;
 
 function displayNewVolume() {
-    volumeBar.style.width = `${video.volume * 100}%`
+    const { volumeBar, video } = htmlElements;
+    volumeBar.style.width = `${video.volume * 100}%`;
 }
 
 function changeVolumeIcon(){
-    volumeIcon.classList = 'fas';
-    // volumeIcon.classList.add('fas');
-    video.volume > 0.7 ? volumeIcon.classList.add('fa-volume-up') : false;
-    video.volume < 0.7 && video.volume > 0 ? volumeIcon.classList.add('fa-volume-down') : false;
-    video.volume === 0 ? volumeIcon.classList.add('fa-volume-mute'): false;
-    video.volume ? volumeIcon.title = 'Mute' : volumeIcon.title = 'Unmute';
+    const { volume } = htmlElements.video;
+    const { volumeIcon } = htmlElements;
+    htmlElements.volumeIcon.classList = 'fas';
+    volume > 0.7 ? volumeIcon.classList.add('fa-volume-up') : false;
+    volume < 0.7 && volume > 0 ? volumeIcon.classList.add('fa-volume-down') : false;
+    volume === 0 ? volumeIcon.classList.add('fa-volume-mute'): false;
+    volume ? volumeIcon.title = 'Mute' : volumeIcon.title = 'Unmute';
 }
 
 function changeVolume(e) {
+    const { video, volumeRange } = htmlElements;
     lastVolume = video.volume;
     let newVolume = e.offsetX / volumeRange.offsetWidth;
     // Rounding volume up or down
@@ -107,6 +115,7 @@ function changeVolume(e) {
 }
 
 function muteVolume() {
+    const { video } = htmlElements;
     lastVolume = video.volume;
     video.volume = 0;
     displayNewVolume();
@@ -114,17 +123,18 @@ function muteVolume() {
 }
 
 function unmuteVolume() {
-    video.volume = lastVolume;
+    htmlElements.video.volume = lastVolume;
     displayNewVolume();
     changeVolumeIcon();
 }
 
 function toggleMute() {
-    video.volume > 0 ? muteVolume() : unmuteVolume();
+    htmlElements.video.volume > 0 ? muteVolume() : unmuteVolume();
 }
 
 // Change Playback Speed -------------------- //
 function changeSpeed() {
+    const { video, speed } = htmlElements;
     video.playbackRate = speed.value;
 }
 
@@ -138,7 +148,7 @@ function openFullscreen(elem) {
     } else if (elem.msRequestFullscreen) { /* IE11 */
       elem.msRequestFullscreen();
     }
-    video.classList.add('video-fullscreen');
+    htmlElements.video.classList.add('video-fullscreen');
 }
   
 /* Close fullscreen */
@@ -150,7 +160,7 @@ function closeFullscreen() {
     } else if (document.msExitFullscreen) { /* IE11 */
         document.msExitFullscreen();
     }
-    video.classList.remove('video-fullscreen');
+    htmlElements.video.classList.remove('video-fullscreen');
 }
 
 function toggleFullscreen() {
@@ -158,13 +168,13 @@ function toggleFullscreen() {
 }
 
 // Event Listeners
-playBtn.addEventListener('click', togglePlay);
-video.addEventListener('click', togglePlay);
-video.addEventListener('timeupdate', updateProgress);
-video.addEventListener('canplay', updateProgress);
-video.addEventListener('canplay', updateDuration);
-progressRange.addEventListener('click', setProgress);
-volumeRange.addEventListener('click', changeVolume);
-volumeIcon.addEventListener('click', toggleMute);
-speed.addEventListener('change', changeSpeed);
-fullscreenBtn.addEventListener('click', toggleFullscreen);
+htmlElements.playBtn.addEventListener('click', togglePlay);
+htmlElements.video.addEventListener('click', togglePlay);
+htmlElements.video.addEventListener('timeupdate', updateProgress);
+htmlElements.video.addEventListener('canplay', updateProgress);
+htmlElements.video.addEventListener('canplay', updateDuration);
+htmlElements.progressRange.addEventListener('click', setProgress);
+htmlElements.volumeRange.addEventListener('click', changeVolume);
+htmlElements.volumeIcon.addEventListener('click', toggleMute);
+htmlElements.speed.addEventListener('change', changeSpeed);
+htmlElements.fullscreenBtn.addEventListener('click', toggleFullscreen);
